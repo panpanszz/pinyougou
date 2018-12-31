@@ -20,6 +20,7 @@ public class TbItem implements Serializable {
     @Field
     private Long id;
 
+    //映射配置在solr的约束文件schema.xml文件中配置的域名
     @Field("item_title")
     private String title;
 
@@ -72,6 +73,8 @@ public class TbItem implements Serializable {
     @Field("item_seller")
     private String seller;
 
+    //可以将map中的key与通配符替换，map的value作为该域的值
+    //如：{"屏幕尺寸":5.0} ---> item_spec_屏幕尺寸 -》5.0
     @Dynamic
     @Field("item_spec_*")
     private Map<String, String> specMap;
