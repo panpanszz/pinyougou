@@ -1,8 +1,9 @@
 package com.pinyougou.cart.controller;
 
+
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.pojo.TbAddress;
-import com.pinyougou.user.service.AddressService;
+import com.pinyougou.pojo.TbOrder;
+import com.pinyougou.order.service.OrderService;
 import com.pinyougou.vo.PageResult;
 import com.pinyougou.vo.Result;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,54 +11,47 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/address")
+@RequestMapping("/order")
 @RestController
-public class AddressController {
+public class OrderController {
 
     @Reference
-    private AddressService addressService;
+    private OrderService orderService;
 
     @RequestMapping("/findAll")
-    public List<TbAddress> findAll() {
-        return addressService.findAll();
+    public List<TbOrder> findAll() {
+        return orderService.findAll();
     }
 
     @GetMapping("/findPage")
     public PageResult findPage(@RequestParam(value = "page", defaultValue = "1")Integer page,
                                @RequestParam(value = "rows", defaultValue = "10")Integer rows) {
-        return addressService.findPage(page, rows);
-    }
-
-    //查询地址列表
-    @GetMapping("/findAddressList")
-    public List<TbAddress> findAddressList() {
-        String UserId  = SecurityContextHolder.getContext().getAuthentication().getName();
-        TbAddress tbAddress = new TbAddress();
-        tbAddress.setUserId(UserId);
-        return addressService.findByWhere(tbAddress);
-
+        return orderService.findPage(page, rows);
     }
 
     @PostMapping("/add")
-    public Result add(@RequestBody TbAddress address) {
+    public Result add(@RequestBody TbOrder order) {
         try {
-            addressService.add(address);
-            return Result.ok("增加成功");
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            order.setUserId(username);
+            order.setSourceType("2");//pc端订单
+            String outTradeNo = orderService.addOrder(order);
+            return Result.ok(outTradeNo);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Result.fail("增加失败");
+        return Result.fail("提交订单失败");
     }
 
     @GetMapping("/findOne")
-    public TbAddress findOne(Long id) {
-        return addressService.findOne(id);
+    public TbOrder findOne(Long id) {
+        return orderService.findOne(id);
     }
 
     @PostMapping("/update")
-    public Result update(@RequestBody TbAddress address) {
+    public Result update(@RequestBody TbOrder order) {
         try {
-            addressService.update(address);
+            orderService.update(order);
             return Result.ok("修改成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,7 +62,7 @@ public class AddressController {
     @GetMapping("/delete")
     public Result delete(Long[] ids) {
         try {
-            addressService.deleteByIds(ids);
+            orderService.deleteByIds(ids);
             return Result.ok("删除成功");
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,15 +72,15 @@ public class AddressController {
 
     /**
      * 分页查询列表
-     * @param address 查询条件
+     * @param order 查询条件
      * @param page 页号
      * @param rows 每页大小
      * @return
      */
     @PostMapping("/search")
-    public PageResult search(@RequestBody  TbAddress address, @RequestParam(value = "page", defaultValue = "1")Integer page,
+    public PageResult search(@RequestBody  TbOrder order, @RequestParam(value = "page", defaultValue = "1")Integer page,
                                @RequestParam(value = "rows", defaultValue = "10")Integer rows) {
-        return addressService.search(page, rows, address);
+        return orderService.search(page, rows, order);
     }
 
 }
