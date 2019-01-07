@@ -58,7 +58,7 @@ app.controller("orderInfoController",function ($scope,addressService,cartService
            if (response.success){
                if ($scope.order.paymentType=="1"){
                    //携带支付业务id,跳转到支付页面
-                   location.href = "pay.html?outTradeNo="+response.message;
+                   location.href = "pay.html#?outTradeNo="+response.message;
                } else{
                    location.href = "paysuccess.html";
                }
